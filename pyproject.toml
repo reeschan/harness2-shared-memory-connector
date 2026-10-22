@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "harness2-shared-memory-connector"
+version = "0.1.0"
+description = "A Harness² memory connector that keeps the harness library in files and shares the lessons through a shared-memory server."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.12,<3.14"
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: POSIX",
+]
+dependencies = [
+    "harness2 @ git+https://github.com/reeschan/harness2.git@190a27ef8712d43786b399db78aaa542550b9654",
+]
+
+[project.entry-points."harness2.memory_connectors"]
+shared-memory = "harness2_shared_memory_connector.connector:make_connector"
+
+[tool.setuptools.packages.find]
+include = ["harness2_shared_memory_connector*"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
