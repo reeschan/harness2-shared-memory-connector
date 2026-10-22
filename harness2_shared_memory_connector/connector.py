@@ -125,15 +125,23 @@ class SharedMemoryConnector:
             "tags": naming.tags_for(self.domain, slug),
             "source_path": str(Path(entry).resolve()),
         }
-        previous = self._ledger.get(slug)
+        try:
+            previous = self._ledger.get(slug)
+        except OSError as exc:
+            _warn(f"ledger read failed ({type(exc).__name__})")
+            previous = None
         if previous:
             arguments["supersedes"] = previous
         written = self._write_memory(arguments)
         if not isinstance(written, Mapping):
             return
         memory_id = written.get("id")
-        if memory_id:
+        if not memory_id:
+            return
+        try:
             self._ledger.set(slug, str(memory_id))
+        except OSError as exc:
+            _warn(f"ledger write failed ({type(exc).__name__})")
 
     def _write_memory(self, arguments: dict[str, Any]) -> Any:
         try:

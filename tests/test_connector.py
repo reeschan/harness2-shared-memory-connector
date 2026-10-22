@@ -237,6 +237,27 @@ class WriteTest(ConnectorTestCase):
         self.assertNotIn("alpha cue", err)
         self.assertIsNone(self.stored("task-1"))
 
+    def test_ledger_write_failure_keeps_the_entry_and_warns(self):
+        conn = self.build(write="1")
+        with mock.patch.object(ledger.Ledger, "set", side_effect=OSError("read-only")):
+            entry, err = self.stderr(self.add, conn, "task-1")
+        self.assertTrue(entry.is_dir())
+        self.assertEqual(conn.entries(), ["task-1"])
+        self.assertEqual(len(self.client.calls_of("write")), 1)
+        self.assertIn("ledger write failed (OSError)", err)
+        self.assertNotIn(self.tmp.name, err)
+
+    def test_ledger_read_failure_writes_without_supersedes_and_warns(self):
+        conn = self.build(write="1")
+        with mock.patch.object(ledger.Ledger, "get", side_effect=OSError("denied")):
+            entry, err = self.stderr(self.add, conn, "task-1")
+        self.assertTrue(entry.is_dir())
+        writes = self.client.calls_of("write")
+        self.assertEqual(len(writes), 1)
+        self.assertNotIn("supersedes", writes[0])
+        self.assertIn("ledger read failed (OSError)", err)
+        self.assertNotIn(self.tmp.name, err)
+
     def test_tool_error_without_supersedes_warns_without_a_retry(self):
         conn = self.build(write="1")
         self.client.queue("write", McpToolError("rejected"))
