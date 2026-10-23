@@ -15,7 +15,7 @@ classifiers = [
     "Operating System :: POSIX",
 ]
 dependencies = [
-    "harness2 @ git+https://github.com/reeschan/harness2.git@4bbb82ebb55fb70a73ebc1c4f81209ec503f220c",
+    "harness2 @ git+https://github.com/reeschan/harness2.git@befa650adc93d6dcc0d2865ad8e6833d5d7c521d",
 ]
 
 [project.entry-points."harness2.memory_connectors"]
