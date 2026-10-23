@@ -1,0 +1,85 @@
+# harness2-shared-memory-connector architecture
+# __MONO__ is the color of single-color logos. render.py draws a light (000000) and a dark (ffffff) copy.
+# Render: python <arch-diagram>/scripts/render.py assets/architecture/architecture.d2
+direction: right
+
+vars: {
+  d2-config: {
+    layout-engine: elk
+    pad: 40
+  }
+}
+
+classes: {
+  svc: {
+    shape: rectangle
+    style: {
+      border-radius: 12
+      font-size: 15
+    }
+  }
+  ext: {
+    shape: image
+    width: 64
+    height: 64
+    label.near: outside-bottom-center
+  }
+  zone: {
+    style.border-radius: 16
+  }
+}
+
+h2: "harness2 (run_domain)" {
+  class: zone
+  icon: https://cdn.simpleicons.org/python
+
+  run: "run_task\nretain · recall(query) · store · close" {
+    class: svc
+  }
+
+  conn: "harness2-shared-memory-connector" {
+    class: zone
+    direction: down
+
+    sm: "SharedMemoryConnector\nentry point shared-memory · --memory-opt" {
+      class: svc
+    }
+    file: "FileConnector (wrapped)\nentries · retain · context_dir" {
+      class: svc
+    }
+    ledger: "ledger\ntask → memory id" {
+      class: svc
+    }
+  }
+}
+
+disk: "library root (per mode)" {
+  class: zone
+  icon: https://icons.terrastruct.com/essentials%2F245-folder.svg
+
+  harness: "harness tree + EXPERIENCE.md\nper task" {
+    class: svc
+  }
+}
+
+shm: "shared-memory (MCP on 127.0.0.1)" {
+  class: zone
+  icon: https://icons.terrastruct.com/essentials%2F257-file.svg
+
+  mem: "lessons\nproject:harness2.<benchmark>.<mode>.<sharing name>" {
+    class: svc
+  }
+}
+
+others: "other agents' memories\n(other scopes, never recalled)" {
+  class: ext
+  icon: https://icons.terrastruct.com/essentials%2F359-users.svg
+}
+
+h2.run -> h2.conn.sm
+h2.conn.sm -> h2.conn.file: "delegates"
+h2.conn.file -> disk.harness: "harness files"
+h2.conn.sm <-> shm.mem: "search + get (query = task prompt)\nwrite lesson (write=1)"
+h2.conn.sm -> h2.conn.ledger
+shm.mem -> disk.harness: "source_path" {style.stroke-dash: 4}
+others -> shm: "" {style.stroke-dash: 4}
